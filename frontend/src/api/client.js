@@ -264,3 +264,8 @@ export async function createTeamBookings(date, bookings, repeat_weeks = 0) {
   const { data } = await api.post('/reservations/team-bookings', { date, bookings, repeat_weeks });
   return data;
 }
+
+export async function sendAiChat(message, history = []) {
+  const { data } = await api.post('/ai/chat', { message, history });
+  return data;
+}

@@ -12,6 +12,7 @@ import {
   Map,
   Menu,
   Search,
+  Sparkles,
   Users,
   X,
 } from 'lucide-react';
@@ -21,6 +22,7 @@ import BrandMark from './BrandMark';
 
 const employeeLinks = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/assistant', icon: Sparkles, label: 'AI Assistant' },
   { to: '/reservations', icon: Calendar, label: 'My Reservations' },
   { to: '/floor-plan', icon: Armchair, label: 'Reserve a seat' },
 ];

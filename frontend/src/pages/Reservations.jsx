@@ -136,7 +136,7 @@ export default function ReservationsPage() {
           <h3 className="font-semibold text-slate-900">Booking History</h3>
         </div>
         {loading ? (
-          <SkeletonTable rows={5} columns={4} />
+          <SkeletonTable rows={5} columns={5} />
         ) : (
         <table className="w-full text-sm">
           <thead>
@@ -144,6 +144,7 @@ export default function ReservationsPage() {
               <th className="px-6 py-3">Resource</th>
               <th className="px-6 py-3">Floor</th>
               <th className="px-6 py-3">Date</th>
+              <th className="px-6 py-3">Time Slot</th>
               <th className="px-6 py-3">Status</th>
             </tr>
           </thead>
@@ -153,6 +154,13 @@ export default function ReservationsPage() {
                 <td className="px-6 py-3.5 font-medium">{r.resource?.name}</td>
                 <td className="px-6 py-3.5 text-slate-600">{r.resource?.floor}</td>
                 <td className="px-6 py-3.5 text-slate-600">{r.date}</td>
+                <td className="px-6 py-3.5 text-slate-600">
+                  {r.start_time && r.end_time
+                    ? `${String(r.start_time).slice(0, 5)} - ${String(r.end_time).slice(0, 5)}`
+                    : r.resource?.type === 'room'
+                      ? '—'
+                      : 'All day'}
+                </td>
                 <td className="px-6 py-3.5">
                   <span
                     className={

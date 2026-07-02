@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from pydantic import field_validator
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -35,9 +35,32 @@ class Settings(BaseSettings):
     resend_from_email: str | None = None
     admin_notification_email: str | None = None
     allowed_email_domain: str = "genpact.com"
+    hf_api_key: str | None = Field(default=None, validation_alias="HF_API_KEY")
+    hf_model: str = Field(
+        default="mistralai/Mistral-7B-Instruct-v0.2",
+        validation_alias="HF_MODEL",
+    )
+    hf_provider: str = Field(
+        default="featherless-ai",
+        validation_alias="HF_PROVIDER",
+    )
 
     class Config:
         env_file = ".env"
+
+    @field_validator("hf_model", mode="before")
+    @classmethod
+    def normalize_hf_model(cls, value: str) -> str:
+        if not isinstance(value, str):
+            return value
+        cleaned = value.strip()
+        # Route all Mistral-7B-Instruct aliases to v0.2, which is live on Featherless AI.
+        legacy_models = {
+            "mistralai/Mistral-7B-Instruct": "mistralai/Mistral-7B-Instruct-v0.2",
+            "mistralai/Mistral-7B-Instruct-v0.1": "mistralai/Mistral-7B-Instruct-v0.2",
+            "mistralai/Mistral-7B-Instruct-v0.3": "mistralai/Mistral-7B-Instruct-v0.2",
+        }
+        return legacy_models.get(cleaned, cleaned)
 
     @field_validator("database_url", mode="before")
     @classmethod
