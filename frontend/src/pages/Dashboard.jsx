@@ -18,6 +18,7 @@ import {
   CalendarCheck,
   LocateFixed,
   Percent,
+  Sparkles,
 } from 'lucide-react';
 import { getEmployeeSummary, getMyReservations } from '../api/client';
 import KpiCard from '../components/ui/KpiCard';
@@ -127,7 +128,10 @@ export default function Dashboard() {
           <h3 className="font-semibold text-slate-900">Quick Actions</h3>
           <p className="text-sm text-slate-500">Reserve your workspace in seconds</p>
           <div className="mt-5 space-y-3">
-            <Link to="/floor-plan" className="btn-primary w-full py-3">
+            <Link to="/assistant" className="btn-primary w-full py-3">
+              <Sparkles size={18} /> AI Assistant
+            </Link>
+            <Link to="/floor-plan" className="btn-secondary w-full py-3">
               <Armchair size={18} /> Reserve a seat
             </Link>
             <Link to="/floor-plan?type=room" className="btn-secondary w-full py-3">
@@ -174,7 +178,7 @@ export default function Dashboard() {
           </div>
           <div className="overflow-x-auto">
             {loading ? (
-              <SkeletonTable rows={4} columns={4} />
+              <SkeletonTable rows={4} columns={5} />
             ) : (
             <table className="w-full text-sm">
               <thead>
@@ -182,6 +186,7 @@ export default function Dashboard() {
                   <th className="px-6 py-3">Resource</th>
                   <th className="px-6 py-3">Floor</th>
                   <th className="px-6 py-3">Date</th>
+                  <th className="px-6 py-3">Time Slot</th>
                   <th className="px-6 py-3">Status</th>
                 </tr>
               </thead>
@@ -193,6 +198,13 @@ export default function Dashboard() {
                     </td>
                     <td className="px-6 py-3.5 text-slate-600">{r.resource?.floor}</td>
                     <td className="px-6 py-3.5 text-slate-600">{r.date}</td>
+                    <td className="px-6 py-3.5 text-slate-600">
+                      {r.start_time && r.end_time
+                        ? `${String(r.start_time).slice(0, 5)} - ${String(r.end_time).slice(0, 5)}`
+                        : r.resource?.type === 'room'
+                          ? '—'
+                          : 'All day'}
+                    </td>
                     <td className="px-6 py-3.5">
                       <span className="badge-green capitalize">{r.status}</span>
                     </td>
@@ -200,7 +212,7 @@ export default function Dashboard() {
                 ))}
                 {reservations.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="px-6 py-10 text-center text-slate-400">
+                    <td colSpan={5} className="px-6 py-10 text-center text-slate-400">
                       No upcoming reservations —{' '}
                       <Link to="/floor-plan" className="text-brand-600 hover:underline">
                         book a desk

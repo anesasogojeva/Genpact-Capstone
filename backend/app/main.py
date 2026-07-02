@@ -11,7 +11,7 @@ from app.config import settings
 from app.database import Base, engine
 from app.models import AuditLog, Favorite, FloorPlan, Reservation, Resource, User
 from app.models.user import UserRole
-from app.routers import analytics, audit, auth, floor_plans, reservations, resources, users
+from app.routers import ai, analytics, audit, auth, floor_plans, reservations, resources, users
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +33,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router, prefix="/api")
+app.include_router(ai.router, prefix="/api")
 app.include_router(resources.router, prefix="/api")
 app.include_router(reservations.router, prefix="/api")
 app.include_router(floor_plans.router, prefix="/api")
