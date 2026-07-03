@@ -269,3 +269,12 @@ export async function sendAiChat(message, history = []) {
   const { data } = await api.post('/ai/chat', { message, history });
   return data;
 }
+
+export async function buildProjectTeam({ prompt, requiredSkills = [], teamSize = null }) {
+  const { data } = await api.post('/ai/team-builder', {
+    prompt,
+    requiredSkills,
+    teamSize,
+  });
+  return data;
+}

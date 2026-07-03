@@ -235,14 +235,33 @@ def export_users_csv(
     users = db.query(User).order_by(User.full_name).all()
     buffer = io.StringIO()
     writer = csv.writer(buffer)
-    writer.writerow(["id", "full_name", "email", "role", "job_title", "team_name", "team_leader_id"])
+    writer.writerow([
+        "id",
+        "full_name",
+        "email",
+        "role",
+        "job_title",
+        "department",
+        "specialization",
+        "experience_level",
+        "skills",
+        "availability",
+        "team_name",
+        "team_leader_id",
+    ])
     for user in users:
+        skills = user.skills if isinstance(user.skills, list) else []
         writer.writerow([
             user.id,
             user.full_name,
             user.email,
             user.role.value,
             user.job_title or "",
+            user.department or "",
+            user.specialization.value if user.specialization else "",
+            user.experience_level.value if user.experience_level else "",
+            ", ".join(skills),
+            user.availability if user.availability is not None else "",
             user.team_name or "",
             user.team_leader_id or "",
         ])
@@ -273,6 +292,16 @@ def update_user(
         user.job_title = data.job_title
     if data.team_name is not None:
         user.team_name = data.team_name
+    if data.department is not None:
+        user.department = data.department
+    if data.specialization is not None:
+        user.specialization = data.specialization
+    if data.experience_level is not None:
+        user.experience_level = data.experience_level
+    if data.skills is not None:
+        user.skills = data.skills
+    if data.availability is not None:
+        user.availability = data.availability
     if data.team_leader_id is not None:
         leader = db.get(User, data.team_leader_id)
         if not leader or leader.role != UserRole.team_leader:

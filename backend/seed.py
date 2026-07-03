@@ -5,18 +5,11 @@ from app.config import settings
 from app.database import Base, SessionLocal, engine
 from app.models.floor_plan import FloorPlan
 from app.models.resource import Resource, ResourceType
-from app.models.user import User, UserRole
+from app.models.user import ExperienceLevel, Specialization, User, UserRole
 
 Base.metadata.create_all(bind=engine)
 
 db = SessionLocal()
-
-DEMO_USERS = [
-    ("sarah.chen@genpact.com", "password123", "Sarah Chen", UserRole.admin, "Office Manager", "Platform", None),
-    ("alex.morgan@genpact.com", "password123", "Alex Morgan", UserRole.team_leader, "Team Lead", "Product", None),
-    ("priya.sharma@genpact.com", "password123", "Priya Sharma", UserRole.manager, "Director of Workplace", "Operations", None),
-    ("jane.smith@genpact.com", "password123", "Jane Smith", UserRole.employee, "Software Engineer", "Product", None),
-]
 
 DEMO_FLOOR = "1"
 DEMO_FLOOR_IMAGE = "02c4e64e12e044f8add5543cfc83607d.jpg"
@@ -26,6 +19,165 @@ DEMO_RESOURCES = [
     ("2", ResourceType.desk, "Open Area", 64.87562189054727, 25.571381252070225, 1, "Hot Desk"),
     ("3", ResourceType.desk, "Open Area", 18.109452736318406, 47.30043060616098, 1, "Hot Desk"),
     ("Meeting Room 1", ResourceType.room, "Meeting", 84.74945533769062, 47.88461538461539, 6, "Meeting Room"),
+]
+
+DEMO_USERS = [
+    {
+        "email": "sarah.chen@genpact.com",
+        "password": "password123",
+        "full_name": "Sarah Chen",
+        "role": UserRole.admin,
+        "job_title": "Office Manager",
+        "team_name": "Platform",
+        "department": "Operations",
+        "specialization": Specialization.operations,
+        "experience_level": ExperienceLevel.senior,
+        "skills": ["Facilities", "Vendor Management", "Workplace Planning"],
+        "availability": 0.9,
+    },
+    {
+        "email": "alex.morgan@genpact.com",
+        "password": "password123",
+        "full_name": "Alex Morgan",
+        "role": UserRole.team_leader,
+        "job_title": "Engineering Team Lead",
+        "team_name": "Product",
+        "department": "Engineering",
+        "specialization": Specialization.backend,
+        "experience_level": ExperienceLevel.senior,
+        "skills": ["Python", "FastAPI", "System Design", "Leadership", "PostgreSQL"],
+        "availability": 0.75,
+    },
+    {
+        "email": "priya.sharma@genpact.com",
+        "password": "password123",
+        "full_name": "Priya Sharma",
+        "role": UserRole.manager,
+        "job_title": "Director of Workplace",
+        "team_name": "Operations",
+        "department": "Operations",
+        "specialization": Specialization.product,
+        "experience_level": ExperienceLevel.senior,
+        "skills": ["Strategy", "Stakeholder Management", "Program Management"],
+        "availability": 0.6,
+    },
+    {
+        "email": "jane.smith@genpact.com",
+        "password": "password123",
+        "full_name": "Jane Smith",
+        "role": UserRole.employee,
+        "job_title": "Frontend Engineer",
+        "team_name": "Product",
+        "department": "Engineering",
+        "specialization": Specialization.frontend,
+        "experience_level": ExperienceLevel.mid,
+        "skills": ["React", "TypeScript", "CSS", "Accessibility"],
+        "availability": 0.85,
+    },
+    {
+        "email": "marcus.lee@genpact.com",
+        "password": "password123",
+        "full_name": "Marcus Lee",
+        "role": UserRole.employee,
+        "job_title": "Senior Backend Engineer",
+        "team_name": "Product",
+        "department": "Engineering",
+        "specialization": Specialization.backend,
+        "experience_level": ExperienceLevel.senior,
+        "skills": ["Python", "FastAPI", "PostgreSQL", "REST APIs", "Docker"],
+        "availability": 0.7,
+    },
+    {
+        "email": "elena.rossi@genpact.com",
+        "password": "password123",
+        "full_name": "Elena Rossi",
+        "role": UserRole.employee,
+        "job_title": "ML Engineer",
+        "team_name": "Product",
+        "department": "Data & AI",
+        "specialization": Specialization.ai_ml,
+        "experience_level": ExperienceLevel.mid,
+        "skills": ["Python", "Machine Learning", "TensorFlow", "NLP", "MLOps"],
+        "availability": 0.8,
+    },
+    {
+        "email": "david.kim@genpact.com",
+        "password": "password123",
+        "full_name": "David Kim",
+        "role": UserRole.employee,
+        "job_title": "Data Engineer",
+        "team_name": "Product",
+        "department": "Data & AI",
+        "specialization": Specialization.data_engineering,
+        "experience_level": ExperienceLevel.senior,
+        "skills": ["Python", "Spark", "Airflow", "Data Pipelines", "SQL"],
+        "availability": 0.65,
+    },
+    {
+        "email": "sofia.patel@genpact.com",
+        "password": "password123",
+        "full_name": "Sofia Patel",
+        "role": UserRole.employee,
+        "job_title": "Data Scientist",
+        "team_name": "Product",
+        "department": "Data & AI",
+        "specialization": Specialization.data_science,
+        "experience_level": ExperienceLevel.mid,
+        "skills": ["Python", "Statistics", "Machine Learning", "Data Analysis", "Pandas"],
+        "availability": 0.9,
+    },
+    {
+        "email": "liam.nguyen@genpact.com",
+        "password": "password123",
+        "full_name": "Liam Nguyen",
+        "role": UserRole.employee,
+        "job_title": "Junior Full Stack Developer",
+        "team_name": "Product",
+        "department": "Engineering",
+        "specialization": Specialization.fullstack,
+        "experience_level": ExperienceLevel.junior,
+        "skills": ["JavaScript", "React", "Node.js", "REST APIs"],
+        "availability": 0.95,
+    },
+    {
+        "email": "nina.bauer@genpact.com",
+        "password": "password123",
+        "full_name": "Nina Bauer",
+        "role": UserRole.employee,
+        "job_title": "DevOps Engineer",
+        "team_name": "Platform",
+        "department": "Engineering",
+        "specialization": Specialization.devops,
+        "experience_level": ExperienceLevel.mid,
+        "skills": ["Docker", "Kubernetes", "CI/CD", "AWS", "Terraform"],
+        "availability": 0.72,
+    },
+    {
+        "email": "omar.hassan@genpact.com",
+        "password": "password123",
+        "full_name": "Omar Hassan",
+        "role": UserRole.employee,
+        "job_title": "QA Engineer",
+        "team_name": "Product",
+        "department": "Engineering",
+        "specialization": Specialization.qa,
+        "experience_level": ExperienceLevel.mid,
+        "skills": ["Test Automation", "Selenium", "API Testing", "Quality Assurance"],
+        "availability": 0.88,
+    },
+    {
+        "email": "rachel.fox@genpact.com",
+        "password": "password123",
+        "full_name": "Rachel Fox",
+        "role": UserRole.employee,
+        "job_title": "UX Designer",
+        "team_name": "Design",
+        "department": "Design",
+        "specialization": Specialization.design,
+        "experience_level": ExperienceLevel.senior,
+        "skills": ["UX Design", "UI Design", "Figma", "User Research", "Prototyping"],
+        "availability": 0.78,
+    },
 ]
 
 
@@ -40,31 +192,38 @@ def _floor_plan_image_path() -> str:
     return str(image_path)
 
 
-for email, password, full_name, role, job_title, team_name, team_leader_id in DEMO_USERS:
-    user = db.query(User).filter(User.email == email).first()
+for profile in DEMO_USERS:
+    user = db.query(User).filter(User.email == profile["email"]).first()
+    payload = {
+        "hashed_password": hash_password(profile["password"]),
+        "full_name": profile["full_name"],
+        "role": profile["role"],
+        "job_title": profile["job_title"],
+        "team_name": profile["team_name"],
+        "department": profile["department"],
+        "specialization": profile["specialization"],
+        "experience_level": profile["experience_level"],
+        "skills": profile["skills"],
+        "availability": profile["availability"],
+        "team_leader_id": None,
+    }
 
     if user:
-        user.hashed_password = hash_password(password)
-        user.full_name = full_name
-        user.role = role
-        user.job_title = job_title
-        user.team_name = team_name
-        user.team_leader_id = team_leader_id
+        for key, value in payload.items():
+            setattr(user, key, value)
     else:
-        db.add(
-            User(
-                email=email,
-                hashed_password=hash_password(password),
-                full_name=full_name,
-                role=role,
-                job_title=job_title,
-                team_name=team_name,
-                team_leader_id=team_leader_id,
-            )
-        )
+        db.add(User(email=profile["email"], **payload))
 
 team_leader = db.query(User).filter(User.email == "alex.morgan@genpact.com").first()
-for teammate_email in ("jane.smith@genpact.com",):
+for teammate_email in (
+    "jane.smith@genpact.com",
+    "marcus.lee@genpact.com",
+    "elena.rossi@genpact.com",
+    "david.kim@genpact.com",
+    "sofia.patel@genpact.com",
+    "liam.nguyen@genpact.com",
+    "omar.hassan@genpact.com",
+):
     teammate = db.query(User).filter(User.email == teammate_email).first()
     if teammate and team_leader:
         teammate.team_leader_id = team_leader.id
@@ -116,4 +275,4 @@ for name, resource_type, zone, x, y, capacity, desk_type in DEMO_RESOURCES:
 db.commit()
 db.close()
 
-print("Seed complete (users, floor plan, and demo resources)")
+print("Seed complete (users with profiles, floor plan, and demo resources)")

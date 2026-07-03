@@ -23,13 +23,57 @@ const ROLE_LABELS = {
 
 const TEAM_NAMES = ['Product', 'Operations', 'Platform', 'Engineering', 'Design'];
 
+const DEPARTMENTS = ['Engineering', 'Data & AI', 'Product', 'Operations', 'Design', 'Platform'];
+
+const SPECIALIZATIONS = [
+  { value: 'frontend', label: 'Frontend' },
+  { value: 'backend', label: 'Backend' },
+  { value: 'fullstack', label: 'Full Stack' },
+  { value: 'ai_ml', label: 'AI / ML' },
+  { value: 'data_engineering', label: 'Data Engineering' },
+  { value: 'data_science', label: 'Data Science' },
+  { value: 'devops', label: 'DevOps' },
+  { value: 'qa', label: 'QA / Testing' },
+  { value: 'design', label: 'Design' },
+  { value: 'product', label: 'Product' },
+  { value: 'operations', label: 'Operations' },
+  { value: 'general', label: 'General' },
+];
+
+const EXPERIENCE_LEVELS = [
+  { value: 'junior', label: 'Junior' },
+  { value: 'mid', label: 'Mid' },
+  { value: 'senior', label: 'Senior' },
+];
+
 const EMPTY_FORM = {
   email: '',
   full_name: '',
   job_title: '',
   role: 'employee',
   team_name: '',
+  department: '',
+  specialization: '',
+  experience_level: '',
+  skills: '',
+  availability: '',
 };
+
+function parseSkillsInput(value) {
+  return value
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function formatSkillsInput(skills) {
+  if (!Array.isArray(skills) || skills.length === 0) return '';
+  return skills.join(', ');
+}
+
+function specializationLabel(value) {
+  return SPECIALIZATIONS.find((item) => item.value === value)?.label ?? value ?? '—';
+}
 
 function saveBlob(blob, filename) {
   const url = window.URL.createObjectURL(blob);
@@ -38,6 +82,17 @@ function saveBlob(blob, filename) {
   link.download = filename;
   link.click();
   window.URL.revokeObjectURL(url);
+}
+
+function buildProfilePayload(form) {
+  const availabilityValue = form.availability === '' ? undefined : Number(form.availability) / 100;
+  return {
+    department: form.department || undefined,
+    specialization: form.specialization || undefined,
+    experience_level: form.experience_level || undefined,
+    skills: parseSkillsInput(form.skills),
+    availability: Number.isFinite(availabilityValue) ? availabilityValue : undefined,
+  };
 }
 
 export default function Users() {
@@ -104,6 +159,7 @@ export default function Users() {
           role: form.role,
           job_title: form.job_title || undefined,
           team_name: form.role === 'team_leader' ? form.team_name || undefined : undefined,
+          ...buildProfilePayload(form),
         });
         setSuccess('User updated successfully.');
       } else {
@@ -113,6 +169,7 @@ export default function Users() {
           role: form.role,
           job_title: form.job_title || undefined,
           team_name: form.role === 'team_leader' ? form.team_name || undefined : undefined,
+          ...buildProfilePayload(form),
         });
         setCreatedPassword(created.temporary_password || '');
         setSuccess('User created successfully.');
@@ -132,6 +189,11 @@ export default function Users() {
       job_title: user.job_title ?? '',
       role: user.role,
       team_name: user.team_name ?? '',
+      department: user.department ?? '',
+      specialization: user.specialization ?? '',
+      experience_level: user.experience_level ?? '',
+      skills: formatSkillsInput(user.skills),
+      availability: user.availability != null ? String(Math.round(user.availability * 100)) : '',
     });
     setShowForm(true);
     setError('');
@@ -286,6 +348,51 @@ export default function Users() {
             <option value="team_leader">Team Leader</option>
             <option value="admin">Office Manager</option>
           </select>
+          <select
+            value={form.department}
+            onChange={(e) => setForm({ ...form, department: e.target.value })}
+            className="input-field"
+          >
+            <option value="">Department</option>
+            {DEPARTMENTS.map((name) => (
+              <option key={name} value={name}>{name}</option>
+            ))}
+          </select>
+          <select
+            value={form.specialization}
+            onChange={(e) => setForm({ ...form, specialization: e.target.value })}
+            className="input-field"
+          >
+            <option value="">Specialization</option>
+            {SPECIALIZATIONS.map((item) => (
+              <option key={item.value} value={item.value}>{item.label}</option>
+            ))}
+          </select>
+          <select
+            value={form.experience_level}
+            onChange={(e) => setForm({ ...form, experience_level: e.target.value })}
+            className="input-field"
+          >
+            <option value="">Experience level</option>
+            {EXPERIENCE_LEVELS.map((item) => (
+              <option key={item.value} value={item.value}>{item.label}</option>
+            ))}
+          </select>
+          <input
+            type="number"
+            min="0"
+            max="100"
+            placeholder="Availability % (optional)"
+            value={form.availability}
+            onChange={(e) => setForm({ ...form, availability: e.target.value })}
+            className="input-field"
+          />
+          <input
+            placeholder="Skills (comma-separated)"
+            value={form.skills}
+            onChange={(e) => setForm({ ...form, skills: e.target.value })}
+            className="input-field sm:col-span-2"
+          />
           {form.role === 'team_leader' && (
             <select
               value={form.team_name}
@@ -319,11 +426,14 @@ export default function Users() {
       )}
 
       <div className="card overflow-x-auto">
-        <table className="min-w-[860px] w-full text-sm">
+        <table className="min-w-[1180px] w-full text-sm">
           <thead>
             <tr className="border-b bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
               <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">Position</th>
+              <th className="px-4 py-3">Department</th>
+              <th className="px-4 py-3">Specialization</th>
+              <th className="px-4 py-3">Skills</th>
               <th className="px-4 py-3">Email</th>
               <th className="px-4 py-3">Access</th>
               <th className="px-4 py-3">Team</th>
@@ -334,7 +444,17 @@ export default function Users() {
             {users.map((u) => (
               <tr key={u.id} className="border-t border-slate-100">
                 <td className="px-4 py-3.5 font-medium">{u.full_name}</td>
-                <td className="px-4 py-3.5 text-slate-600">{u.job_title ?? '—'}</td>
+                <td className="px-4 py-3.5 text-slate-600">
+                  <div>{u.job_title ?? '—'}</div>
+                  {u.experience_level && (
+                    <div className="mt-1 text-xs capitalize text-slate-400">{u.experience_level}</div>
+                  )}
+                </td>
+                <td className="px-4 py-3.5 text-slate-600">{u.department ?? '—'}</td>
+                <td className="px-4 py-3.5 text-slate-600">{specializationLabel(u.specialization)}</td>
+                <td className="px-4 py-3.5 text-slate-600">
+                  {Array.isArray(u.skills) && u.skills.length > 0 ? u.skills.join(', ') : '—'}
+                </td>
                 <td className="px-4 py-3.5 text-slate-600">{u.email}</td>
                 <td className="px-4 py-3.5">
                   <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${roleBadge(u.role)}`}>

@@ -17,8 +17,10 @@ import Analytics from './pages/admin/Analytics';
 import Users from './pages/admin/Users';
 import AuditLog from './pages/admin/AuditLog';
 import TeamSettings from './pages/TeamSettings';
+import TeamBuilder from './pages/TeamBuilder';
 import ResetPassword from './pages/ResetPassword';
 import AiAssistant from './pages/AiAssistant';
+import Profile from './pages/Profile';
 
 export default function App() {
   return (
@@ -39,7 +41,16 @@ export default function App() {
             <Route path="assistant" element={<AiAssistant />} />
             <Route path="reservations" element={<Reservations />} />
             <Route path="floor-plan" element={<FloorPlan />} />
+            <Route path="profile" element={<Profile />} />
             <Route path="team" element={<TeamSettings />} />
+            <Route
+              path="team-builder"
+              element={
+                <ManagerRoute>
+                  <TeamBuilder />
+                </ManagerRoute>
+              }
+            />
             <Route
               path="admin"
               element={

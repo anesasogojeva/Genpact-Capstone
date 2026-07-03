@@ -2,10 +2,11 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
 
-from app.auth import get_current_user
+from app.auth import get_current_user, require_manager_or_admin
 from app.database import get_db
 from app.models.user import User
-from app.schemas.ai import ChatRequest, ChatResponse
+from app.ai.controllers.team_builder import build_team
+from app.schemas.ai import ChatRequest, ChatResponse, TeamBuilderRequest, TeamBuilderResponse
 from app.services.ai_chat import generate_chat_reply
 from app.services.huggingface import generate_hf_response
 
@@ -29,3 +30,12 @@ def chat(
 ):
     history = [{"role": item.role, "content": item.content} for item in data.history]
     return generate_chat_reply(db, current_user, data.message.strip(), history)
+
+
+@router.post("/team-builder", response_model=TeamBuilderResponse, response_model_by_alias=True)
+def team_builder(
+    data: TeamBuilderRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_manager_or_admin),
+):
+    return build_team(data, db, current_user)
