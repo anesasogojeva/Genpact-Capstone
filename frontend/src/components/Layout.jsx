@@ -13,7 +13,9 @@ import {
   Menu,
   Search,
   Sparkles,
+  User,
   Users,
+  UsersRound,
   X,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -25,9 +27,11 @@ const employeeLinks = [
   { to: '/assistant', icon: Sparkles, label: 'AI Assistant' },
   { to: '/reservations', icon: Calendar, label: 'My Reservations' },
   { to: '/floor-plan', icon: Armchair, label: 'Reserve a seat' },
+  { to: '/profile', icon: User, label: 'My Profile' },
 ];
 
 const managerLinks = [
+  { to: '/team-builder', icon: UsersRound, label: 'Team Builder' },
   { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
 ];
 
@@ -36,6 +40,7 @@ const adminLinks = [
   { to: '/admin/reservations', icon: Calendar, label: 'All Employee Reservations' },
   { to: '/admin/resources', icon: Building2, label: 'Resources' },
   { to: '/admin/builder', icon: Map, label: 'Floor Builder' },
+  { to: '/team-builder', icon: UsersRound, label: 'Team Builder' },
   { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
   { to: '/admin/users', icon: Users, label: 'Users' },
   { to: '/admin/audit', icon: Users, label: 'Audit Log' },

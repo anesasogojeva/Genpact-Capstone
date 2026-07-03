@@ -1,7 +1,7 @@
 import enum
 from datetime import datetime
 
-from sqlalchemy import DateTime, Enum, ForeignKey, String
+from sqlalchemy import DateTime, Enum, Float, ForeignKey, JSON, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 
@@ -11,6 +11,27 @@ class UserRole(str, enum.Enum):
     team_leader = "team_leader"
     manager = "manager"
     admin = "admin"
+
+
+class ExperienceLevel(str, enum.Enum):
+    junior = "junior"
+    mid = "mid"
+    senior = "senior"
+
+
+class Specialization(str, enum.Enum):
+    frontend = "frontend"
+    backend = "backend"
+    fullstack = "fullstack"
+    ai_ml = "ai_ml"
+    data_engineering = "data_engineering"
+    data_science = "data_science"
+    devops = "devops"
+    qa = "qa"
+    design = "design"
+    product = "product"
+    operations = "operations"
+    general = "general"
 
 
 class User(Base):
@@ -23,6 +44,15 @@ class User(Base):
     full_name: Mapped[str] = mapped_column(String(255))
     job_title: Mapped[str | None] = mapped_column(String(150), nullable=True)
     team_name: Mapped[str | None] = mapped_column(String(150), nullable=True)
+    department: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    specialization: Mapped[Specialization | None] = mapped_column(
+        Enum(Specialization), nullable=True
+    )
+    experience_level: Mapped[ExperienceLevel | None] = mapped_column(
+        Enum(ExperienceLevel), nullable=True
+    )
+    skills: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
+    availability: Mapped[float | None] = mapped_column(Float, nullable=True)
     profile_image_path: Mapped[str | None] = mapped_column(String(255), nullable=True)
     team_leader_id: Mapped[int | None] = mapped_column(
         ForeignKey("users.id"), nullable=True

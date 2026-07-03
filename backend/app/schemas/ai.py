@@ -148,6 +148,60 @@ class BookingConfirmationFacts(BaseModel):
     reservation_date: str
 
 
+class TeamBuilderRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    prompt: str = Field(..., min_length=1, max_length=2000)
+    required_skills: list[str] = Field(
+        default_factory=list,
+        max_length=20,
+        alias="requiredSkills",
+    )
+    team_size: int | None = Field(default=None, ge=2, le=20, alias="teamSize")
+
+
+class TeamMemberSuggestion(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    name: str
+    role: str
+    skills: list[str] = Field(default_factory=list)
+    experience_level: str = Field(default="mid", alias="experienceLevel")
+    reason: str
+
+    @field_validator("experience_level", mode="before")
+    @classmethod
+    def normalize_experience_level(cls, value):
+        if value is None:
+            return "mid"
+        cleaned = str(value).strip().lower()
+        if cleaned in {"junior", "mid", "senior"}:
+            return cleaned
+        return "mid"
+
+    @field_validator("skills", mode="before")
+    @classmethod
+    def normalize_skills(cls, value):
+        if value is None:
+            return []
+        if isinstance(value, str):
+            cleaned = value.strip()
+            return [cleaned] if cleaned else []
+        if isinstance(value, list):
+            return [str(item).strip() for item in value if str(item).strip()]
+        return []
+
+
+class TeamBuilderResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    team: list[TeamMemberSuggestion] = Field(default_factory=list)
+    summary: str
+    requested_team_size: int = Field(alias="requestedTeamSize")
+    matched_count: int = Field(alias="matchedCount")
+    is_partial_match: bool = Field(alias="isPartialMatch")
+
+
 class ChatResponse(BaseModel):
     intent: str | None = None
     people: int | None = None

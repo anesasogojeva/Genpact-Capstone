@@ -81,6 +81,16 @@ def _ensure_database_schema():
             "BOOLEAN DEFAULT 0" if is_sqlite else "BOOLEAN DEFAULT false",
         )
         _add_column_if_missing(conn, "users", "profile_image_path", "VARCHAR(255)")
+        _add_column_if_missing(conn, "users", "department", "VARCHAR(120)")
+        _add_column_if_missing(conn, "users", "specialization", "VARCHAR(50)")
+        _add_column_if_missing(conn, "users", "experience_level", "VARCHAR(20)")
+        _add_column_if_missing(
+            conn,
+            "users",
+            "skills",
+            "TEXT" if is_sqlite else "JSONB",
+        )
+        _add_column_if_missing(conn, "users", "availability", "REAL")
 
         _add_column_if_missing(conn, "reservations", "start_time", "TIME")
         _add_column_if_missing(conn, "reservations", "end_time", "TIME")
