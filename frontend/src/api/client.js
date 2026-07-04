@@ -278,3 +278,13 @@ export async function buildProjectTeam({ prompt, requiredSkills = [], teamSize =
   });
   return data;
 }
+
+export async function emergencyStaffing({ projectName, problem, requiredSkills = [], neededPeople = 2 }) {
+  const { data } = await api.post('/ai/emergency-staffing', {
+    projectName,
+    problem,
+    requiredSkills,
+    neededPeople,
+  });
+  return data;
+}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
+  AlertTriangle,
   BarChart3,
   Bell,
   Building2,
@@ -32,6 +33,7 @@ const employeeLinks = [
 
 const managerLinks = [
   { to: '/team-builder', icon: UsersRound, label: 'Team Builder' },
+  { to: '/emergency-staffing', icon: AlertTriangle, label: 'Emergency Staffing' },
   { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
 ];
 
@@ -41,6 +43,7 @@ const adminLinks = [
   { to: '/admin/resources', icon: Building2, label: 'Resources' },
   { to: '/admin/builder', icon: Map, label: 'Floor Builder' },
   { to: '/team-builder', icon: UsersRound, label: 'Team Builder' },
+  { to: '/emergency-staffing', icon: AlertTriangle, label: 'Emergency Staffing' },
   { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
   { to: '/admin/users', icon: Users, label: 'Users' },
   { to: '/admin/audit', icon: Users, label: 'Audit Log' },

@@ -21,6 +21,7 @@ import TeamBuilder from './pages/TeamBuilder';
 import ResetPassword from './pages/ResetPassword';
 import AiAssistant from './pages/AiAssistant';
 import Profile from './pages/Profile';
+import EmergencyStaffing from './pages/EmergencyStaffing';
 
 export default function App() {
   return (
@@ -97,6 +98,14 @@ export default function App() {
                 <AdminRoute>
                   <Users />
                 </AdminRoute>
+              }
+            />
+            <Route
+              path="emergency-staffing"
+              element={
+                <ManagerRoute>
+                  <EmergencyStaffing />
+                </ManagerRoute>
               }
             />
             <Route

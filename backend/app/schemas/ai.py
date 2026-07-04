@@ -202,6 +202,30 @@ class TeamBuilderResponse(BaseModel):
     is_partial_match: bool = Field(alias="isPartialMatch")
 
 
+class EmergencyStaffingRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    project_name: str = Field(..., min_length=1, max_length=200, alias="projectName")
+    problem: str = Field(..., min_length=1, max_length=2000)
+    required_skills: list[str] = Field(
+        default_factory=list,
+        max_length=20,
+        alias="requiredSkills",
+    )
+    needed_people: int | None = Field(default=3, ge=1, le=10, alias="neededPeople")
+
+
+class EmergencyStaffingResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    recommended_people: list[TeamMemberSuggestion] = Field(
+        default_factory=list,
+        alias="recommendedPeople",
+    )
+    summary: str
+    urgency_reason: str = Field(alias="urgencyReason")
+
+
 class ChatResponse(BaseModel):
     intent: str | None = None
     people: int | None = None
