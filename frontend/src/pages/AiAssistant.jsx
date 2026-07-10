@@ -4,14 +4,20 @@ import { format, parseISO } from 'date-fns';
 import {
   Bot,
   Building2,
+  CalendarDays,
   CalendarCheck,
+  CalendarX2,
+  ChevronRight,
+  Clock3,
   Loader2,
+  MessageCircle,
   MessageSquarePlus,
   PanelLeftClose,
   PanelLeftOpen,
   Send,
   Sparkles,
   Trash2,
+  Users,
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { sendAiChat, getTeamMembers } from '../api/client';
@@ -39,6 +45,44 @@ const ROOM_PROMPTS = [
 ];
 
 const FALLBACK_COLLEAGUE_NAMES = ['Alex', 'Jane', 'Sarah', 'Priya'];
+
+const QUICK_ACTIONS = [
+  {
+    label: 'Book a desk',
+    description: 'Reserve a desk or workspace',
+    prompt: 'Book a desk for tomorrow',
+    icon: Building2,
+    accent: 'bg-blue-50 text-blue-700 ring-blue-100',
+  },
+  {
+    label: 'Find colleagues',
+    description: 'See where teammates are sitting',
+    prompt: 'Where is Alex sitting tomorrow?',
+    icon: Users,
+    accent: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
+  },
+  {
+    label: 'Check availability',
+    description: 'Search desks for a date',
+    prompt: 'Search desks for tomorrow',
+    icon: CalendarDays,
+    accent: 'bg-violet-50 text-violet-700 ring-violet-100',
+  },
+  {
+    label: 'Cancel reservation',
+    description: 'Cancel an existing booking',
+    prompt: 'Cancel my reservation for tomorrow',
+    icon: CalendarX2,
+    accent: 'bg-rose-50 text-rose-700 ring-rose-100',
+  },
+];
+
+const CAPABILITIES = [
+  ['Book desks', 'Reserve a desk for yourself'],
+  ['Team location', 'Find where colleagues sit'],
+  ['Availability', 'Check desks or rooms'],
+  ['Manage bookings', 'Modify or cancel reservations'],
+];
 
 function firstName(fullName) {
   return fullName?.trim().split(/\s+/)[0] || null;
@@ -255,21 +299,25 @@ function MessageBubble({ message }) {
   const info = response && isInfoAction(response.action);
 
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
+    <div className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}>
+      {!isUser && (
+        <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-600 text-white shadow-sm">
+          <Bot size={16} />
+        </div>
+      )}
       <div
-        className={`max-w-[92%] rounded-2xl px-4 py-3 sm:max-w-[80%] ${
+        className={`max-w-[92%] px-4 py-3 shadow-sm sm:max-w-[76%] ${
           isUser
-            ? 'bg-brand-600 text-white'
+            ? 'rounded-2xl rounded-br-md bg-brand-600 text-white'
             : success
-              ? 'border border-emerald-200 bg-emerald-50 text-slate-900'
+              ? 'rounded-2xl rounded-tl-md border border-emerald-200 bg-emerald-50 text-slate-900'
               : info
-                ? 'border border-sky-200 bg-sky-50 text-slate-900'
-                : 'border border-slate-200 bg-white text-slate-900'
+                ? 'rounded-2xl rounded-tl-md border border-sky-200 bg-sky-50 text-slate-900'
+                : 'rounded-2xl rounded-tl-md border border-slate-200 bg-white text-slate-900'
         }`}
       >
         {!isUser && (
-          <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-            <Bot size={14} />
+          <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase text-slate-500">
             DeskDibs AI
           </div>
         )}
@@ -312,7 +360,47 @@ function MessageBubble({ message }) {
           </>
         )}
       </div>
+      {isUser && (
+        <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-xs font-semibold text-white shadow-sm">
+          You
+        </div>
+      )}
     </div>
+  );
+}
+
+function QuickActionButton({ action, disabled, onSelect }) {
+  const Icon = action.icon;
+
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={() => onSelect(action.prompt)}
+      className="group flex w-full items-center gap-3 rounded-lg border border-slate-200 bg-white p-3 text-left transition hover:border-brand-200 hover:bg-brand-50/60 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ring-1 ${action.accent}`}>
+        <Icon size={17} />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-semibold text-slate-900">{action.label}</span>
+        <span className="block truncate text-xs text-slate-500">{action.description}</span>
+      </span>
+      <ChevronRight size={16} className="text-slate-300 transition group-hover:text-brand-600" />
+    </button>
+  );
+}
+
+function PromptChip({ prompt, disabled, onSelect }) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={() => onSelect(prompt)}
+      className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-brand-300 hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      {prompt}
+    </button>
   );
 }
 
@@ -461,7 +549,7 @@ export default function AiAssistant() {
     <div className="mx-auto flex h-[calc(100vh-7.5rem)] max-w-7xl flex-col">
       <PageHeader
         title="AI Assistant"
-        subtitle="Book desks, meeting rooms, search availability, or cancel reservations using natural language"
+        subtitle="A focused workspace for reservations, availability, and colleague seating"
         action={
           <Link to="/reservations" className="btn-secondary">
             <CalendarCheck size={16} />
@@ -470,22 +558,22 @@ export default function AiAssistant() {
         }
       />
 
-      <div className="card flex min-h-0 flex-1 overflow-hidden">
+      <div className="flex min-h-0 flex-1 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card">
         {sidebarOpen && (
-          <aside className="flex w-72 shrink-0 flex-col border-r border-slate-200 bg-slate-50/80">
-            <div className="border-b border-slate-200 p-3">
+          <aside className="flex w-72 shrink-0 flex-col border-r border-slate-200 bg-slate-50">
+            <div className="border-b border-slate-200 p-4">
               <button
                 type="button"
                 onClick={handleNewChat}
-                className="btn-primary w-full py-2.5"
+                className="btn-primary w-full rounded-lg py-2.5"
               >
                 <MessageSquarePlus size={16} />
                 New chat
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-2">
-              <p className="px-2 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+            <div className="flex-1 overflow-y-auto p-3">
+              <p className="px-1 pb-2 text-[11px] font-semibold uppercase text-slate-500">
                 Previous chats
               </p>
               {sortedConversations.map((conversation) => {
@@ -493,8 +581,10 @@ export default function AiAssistant() {
                 return (
                   <div
                     key={conversation.id}
-                    className={`group mb-1 flex items-start gap-1 rounded-lg ${
-                      isActive ? 'bg-brand-50 ring-1 ring-brand-200' : 'hover:bg-white'
+                    className={`group mb-1 flex items-start gap-1 rounded-lg border transition ${
+                      isActive
+                        ? 'border-brand-200 bg-white shadow-sm'
+                        : 'border-transparent hover:border-slate-200 hover:bg-white'
                     }`}
                   >
                     <button
@@ -514,7 +604,7 @@ export default function AiAssistant() {
                     <button
                       type="button"
                       onClick={(event) => handleDeleteConversation(event, conversation.id)}
-                      className="mr-2 mt-2 rounded-md p-1.5 text-slate-400 opacity-0 transition hover:bg-red-50 hover:text-red-600 group-hover:opacity-100"
+                      className="mr-2 mt-2 rounded-md p-1.5 text-slate-400 opacity-0 transition hover:bg-red-50 hover:text-red-600 group-hover:opacity-100 focus:opacity-100"
                       aria-label="Delete chat"
                     >
                       <Trash2 size={14} />
@@ -524,15 +614,15 @@ export default function AiAssistant() {
               })}
             </div>
 
-            <div className="border-t border-slate-200 px-3 py-2 text-[11px] text-slate-500">
+            <div className="border-t border-slate-200 px-4 py-3 text-[11px] text-slate-500">
               Saved on this device only
             </div>
           </aside>
         )}
 
-        <div className="flex min-w-0 flex-1 flex-col">
-          <div className="border-b border-slate-100 bg-gradient-to-r from-brand-50 to-white px-4 py-4 sm:px-5">
-            <div className="flex items-start gap-3">
+        <main className="flex min-w-0 flex-1 flex-col bg-white">
+          <div className="border-b border-slate-200 bg-white px-4 py-3 sm:px-5">
+            <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => setSidebarOpen((open) => !open)}
@@ -541,50 +631,62 @@ export default function AiAssistant() {
               >
                 {sidebarOpen ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}
               </button>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white">
-                <Sparkles size={18} />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-600 text-white">
+                <MessageCircle size={18} />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate font-semibold text-slate-900">
+                <div className="flex items-center gap-2">
+                  <p className="truncate font-semibold text-slate-900">
                   {activeConversation?.title ?? 'DeskDibs workspace assistant'}
-                </p>
-                <p className="text-sm text-slate-500">
-                  Try prompts like booking a desk for tomorrow or searching available meeting rooms.
-                  {!canBookRooms(user?.role) && (
-                    <span className="block pt-1 text-amber-700">
-                      Meeting room booking requires a team leader or manager account.
+                  </p>
+                  {loading && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
+                      <Loader2 size={12} className="animate-spin" />
+                      Thinking
                     </span>
+                  )}
+                </div>
+                <p className="truncate text-sm text-slate-500">
+                  Ask for bookings, cancellations, availability, or teammate locations.
+                  {!canBookRooms(user?.role) && (
+                    <span className="pl-1 text-amber-700">Rooms require team leader or manager access.</span>
                   )}
                 </p>
               </div>
             </div>
-
-            <div className="mt-4 flex flex-wrap gap-2 pl-11 sm:pl-14">
-              {suggestedPrompts.map((prompt) => (
-                <button
-                  key={prompt}
-                  type="button"
-                  disabled={loading}
-                  onClick={() => submitMessage(prompt)}
-                  className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-brand-300 hover:bg-brand-50 disabled:opacity-50"
-                >
-                  {prompt}
-                </button>
-              ))}
-            </div>
           </div>
 
-          <div className="flex-1 space-y-4 overflow-y-auto bg-surface px-4 py-5 sm:px-6">
+          <div className="flex-1 space-y-4 overflow-y-auto bg-slate-50 px-4 py-5 sm:px-6">
             {messages.length === 0 && !loading && (
-              <div className="flex h-full min-h-[240px] flex-col items-center justify-center text-center">
-                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-100 text-brand-700">
-                  <Building2 size={24} />
+              <div className="mx-auto flex min-h-full max-w-3xl flex-col justify-center py-6">
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-600 text-white shadow-sm">
+                  <Sparkles size={22} />
                 </div>
-                <h2 className="text-lg font-semibold text-slate-900">What would you like to book?</h2>
-                <p className="mt-2 max-w-md text-sm text-slate-500">
-                  Ask in plain English. DeskDibs will extract your intent, run the reservation in the
-                  backend, and confirm with real booking details.
+                <h2 className="text-2xl font-semibold text-slate-950">What should DeskDibs handle?</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                  Start with a direct request. The assistant will confirm the action, show useful details,
+                  and keep the booking thread available in your chat history.
                 </p>
+                <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                  {QUICK_ACTIONS.map((action) => (
+                    <QuickActionButton
+                      key={action.label}
+                      action={action}
+                      disabled={loading}
+                      onSelect={submitMessage}
+                    />
+                  ))}
+                </div>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {suggestedPrompts.slice(0, 5).map((prompt) => (
+                    <PromptChip
+                      key={prompt}
+                      prompt={prompt}
+                      disabled={loading}
+                      onSelect={submitMessage}
+                    />
+                  ))}
+                </div>
               </div>
             )}
 
@@ -594,7 +696,7 @@ export default function AiAssistant() {
 
             {loading && (
               <div className="flex justify-start">
-                <div className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-500">
+                <div className="inline-flex items-center gap-2 rounded-2xl rounded-tl-md border border-slate-200 bg-white px-4 py-3 text-sm text-slate-500 shadow-sm">
                   <Loader2 size={16} className="animate-spin" />
                   Processing your request...
                 </div>
@@ -606,29 +708,69 @@ export default function AiAssistant() {
 
           <form
             onSubmit={handleSubmit}
-            className="border-t border-slate-200 bg-white px-4 py-4 sm:px-6"
+            className="border-t border-slate-200 bg-white px-4 py-3 sm:px-5"
           >
-            <div className="flex gap-3">
+            <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-2 focus-within:border-brand-300 focus-within:bg-white focus-within:ring-2 focus-within:ring-brand-600/10">
               <input
                 ref={inputRef}
                 type="text"
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
-                placeholder="Book a desk for tomorrow..."
+                placeholder="Ask DeskDibs to book, search, cancel, or find a colleague..."
                 disabled={loading}
-                className="input-field"
+                className="min-h-10 flex-1 border-0 bg-transparent px-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:opacity-60"
               />
               <button
                 type="submit"
                 disabled={loading || !input.trim()}
-                className="btn-primary shrink-0 px-4"
+                className="btn-primary h-10 shrink-0 rounded-lg px-4"
               >
                 {loading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
                 Send
               </button>
             </div>
           </form>
-        </div>
+        </main>
+
+        <aside className="hidden w-80 shrink-0 flex-col border-l border-slate-200 bg-white xl:flex">
+          <div className="border-b border-slate-200 p-5">
+            <p className="text-sm font-semibold text-slate-900">Quick actions</p>
+            <p className="mt-1 text-xs leading-5 text-slate-500">
+              Use these to start a structured request without remembering exact wording.
+            </p>
+          </div>
+          <div className="flex-1 space-y-3 overflow-y-auto p-4">
+            {QUICK_ACTIONS.map((action) => (
+              <QuickActionButton
+                key={action.label}
+                action={action}
+                disabled={loading}
+                onSelect={submitMessage}
+              />
+            ))}
+
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                <Clock3 size={16} className="text-brand-600" />
+                Assistant can help with
+              </div>
+              <div className="mt-3 space-y-3">
+                {CAPABILITIES.map(([title, description]) => (
+                  <div key={title}>
+                    <p className="text-xs font-semibold text-slate-800">{title}</p>
+                    <p className="text-xs text-slate-500">{description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {!canBookRooms(user?.role) && (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-xs leading-5 text-amber-800">
+                Meeting room booking is available for team leader and manager accounts.
+              </div>
+            )}
+          </div>
+        </aside>
       </div>
     </div>
   );
