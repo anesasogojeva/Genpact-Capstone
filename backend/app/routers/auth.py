@@ -16,6 +16,7 @@ from app.auth import (
 from app.config import settings
 from app.database import get_db
 from app.models.user import ExperienceLevel, Specialization, User
+from app.utils.urls import api_url
 from app.schemas.auth import (
     PasswordResetEmailRequest,
     PasswordResetRequest,
@@ -85,7 +86,7 @@ async def _store_profile_image(file: UploadFile) -> str:
     filepath = os.path.join(settings.upload_dir, filename)
     with open(filepath, "wb") as handle:
         handle.write(content)
-    return f"/uploads/{filename}"
+    return api_url(f"/uploads/{filename}")
 
 
 @router.post("/login", response_model=Token)
