@@ -67,7 +67,9 @@ class Settings(BaseSettings):
     def normalize_database_url(cls, value: str) -> str:
         if not isinstance(value, str):
             return value
-        cleaned = value.replace("&channel_binding=require", "").replace("channel_binding=require&", "")
+        cleaned = value
+        for flag in ("channel_binding=require", "pgbouncer=true"):
+            cleaned = cleaned.replace(f"&{flag}", "").replace(f"{flag}&", "").replace(f"?{flag}", "?")
         return cleaned.rstrip("&?")
 
     @property

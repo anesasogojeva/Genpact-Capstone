@@ -53,11 +53,11 @@ def _add_column_if_missing(conn, table_name: str, column_name: str, column_defin
 
 
 def _ensure_database_schema():
+    Base.metadata.create_all(bind=engine)
+
     if engine.dialect.name == "postgresql":
         with engine.begin() as conn:
             conn.execute(text("ALTER TYPE resourcetype ADD VALUE IF NOT EXISTS 'amenity'"))
-
-    Base.metadata.create_all(bind=engine)
 
     dialect = engine.dialect.name
     is_sqlite = dialect == "sqlite"
