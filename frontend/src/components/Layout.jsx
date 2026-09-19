@@ -238,7 +238,7 @@ export default function Layout() {
   );
 
   return (
-    <div className="flex min-h-screen bg-surface">
+    <div className="flex h-screen overflow-hidden bg-surface">
       {mobileNavOpen && (
         <button
           type="button"
