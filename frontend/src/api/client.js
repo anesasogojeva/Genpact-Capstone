@@ -63,6 +63,13 @@ export async function deleteResource(id) {
   await api.delete(`/resources/${id}`);
 }
 
+export async function getFavoriteResources(date = null) {
+  const { data } = await api.get('/resources/favorites', {
+    params: date ? { date } : {},
+  });
+  return data;
+}
+
 export async function addFavorite(resourceId) {
   const { data } = await api.post(`/resources/${resourceId}/favorite`);
   return data;

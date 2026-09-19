@@ -95,6 +95,22 @@ def list_resources(
     return [_enrich_resource(r, booking_date, current_user, db) for r in resources]
 
 
+@router.get("/favorites", response_model=list[ResourceOut])
+def list_favorite_resources(
+    booking_date: date | None = Query(None, alias="date"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    resources = (
+        db.query(Resource)
+        .join(Favorite, Favorite.resource_id == Resource.id)
+        .filter(Favorite.user_id == current_user.id, Resource.is_active.is_(True))
+        .order_by(Resource.floor, Resource.name)
+        .all()
+    )
+    return [_enrich_resource(r, booking_date, current_user, db) for r in resources]
+
+
 @router.get("/recommendations/team", response_model=TeamDeskRecommendation)
 def recommend_near_team(
     booking_date: date | None = Query(None, alias="date"),

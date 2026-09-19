@@ -9,6 +9,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import FloorPlan from './pages/FloorPlan';
 import Reservations from './pages/Reservations';
+import Favorites from './pages/Favorites';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminReservations from './pages/admin/Reservations';
 import Resources from './pages/admin/Resources';
@@ -42,6 +43,7 @@ export default function App() {
             <Route path="assistant" element={<AiAssistant />} />
             <Route path="reservations" element={<Reservations />} />
             <Route path="floor-plan" element={<FloorPlan />} />
+            <Route path="favorites" element={<Favorites />} />
             <Route path="profile" element={<Profile />} />
             <Route path="team" element={<TeamSettings />} />
             <Route

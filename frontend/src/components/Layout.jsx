@@ -8,6 +8,7 @@ import {
   Calendar,
   ChevronDown,
   Armchair,
+  Heart,
   LayoutDashboard,
   LogOut,
   Map,
@@ -28,6 +29,7 @@ const employeeLinks = [
   { to: '/assistant', icon: Sparkles, label: 'AI Assistant' },
   { to: '/reservations', icon: Calendar, label: 'My Reservations' },
   { to: '/floor-plan', icon: Armchair, label: 'Reserve a seat' },
+  { to: '/favorites', icon: Heart, label: 'Favorites' },
   { to: '/profile', icon: User, label: 'My Profile' },
 ];
 
