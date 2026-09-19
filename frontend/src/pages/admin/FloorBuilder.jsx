@@ -20,6 +20,12 @@ const emptyPlanForm = {
   floor: '1',
 };
 
+const emptyNewFloorForm = {
+  floor: '',
+  name: '',
+  building: 'HQ - Prishtina',
+};
+
 const emptyResourceForm = {
   name: '',
   type: 'desk',
@@ -53,7 +59,11 @@ export default function FloorBuilder() {
   const [savingResource, setSavingResource] = useState(false);
   const [message, setMessage] = useState('');
   const [missingPlanImages, setMissingPlanImages] = useState({});
+  const [addingFloor, setAddingFloor] = useState(false);
+  const [newFloorForm, setNewFloorForm] = useState(emptyNewFloorForm);
+  const [creatingFloor, setCreatingFloor] = useState(false);
   const fileInputRef = useRef(null);
+  const newFloorFileRef = useRef(null);
   const canvasRef = useRef(null);
   const dragActiveRef = useRef(false);
   const justDraggedRef = useRef(false);
@@ -180,6 +190,39 @@ export default function FloorBuilder() {
     } finally {
       setSavingPlan(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleCreateFloor = async (e) => {
+    const file = e.target.files?.[0];
+    const newFloor = newFloorForm.floor.trim();
+    if (!file || !newFloor) return;
+
+    if (floorOptions.some((item) => item.toLowerCase() === newFloor.toLowerCase())) {
+      toast.error(`Floor ${newFloor} already exists.`);
+      if (newFloorFileRef.current) newFloorFileRef.current.value = '';
+      return;
+    }
+
+    setCreatingFloor(true);
+    try {
+      const created = await uploadFloorPlan(
+        newFloor,
+        file,
+        newFloorForm.building.trim() || 'HQ - Prishtina',
+        newFloorForm.name.trim() || `Floor ${newFloor}`,
+      );
+      await reloadPlans();
+      setFloor(created.floor);
+      setAddingFloor(false);
+      setNewFloorForm(emptyNewFloorForm);
+      toast.success(`Floor ${created.floor} added.`);
+    } catch (error) {
+      const errorMessage = error?.response?.data?.detail ?? 'Could not create this floor.';
+      toast.error(errorMessage);
+    } finally {
+      setCreatingFloor(false);
+      if (newFloorFileRef.current) newFloorFileRef.current.value = '';
     }
   };
 
@@ -372,6 +415,17 @@ export default function FloorBuilder() {
               />
             </label>
 
+            <button
+              type="button"
+              onClick={() => {
+                setAddingFloor((current) => !current);
+                setNewFloorForm(emptyNewFloorForm);
+              }}
+              className="inline-flex items-center gap-2 rounded-lg border border-brand-200 px-4 py-2 text-sm text-brand-700 hover:bg-brand-50"
+            >
+              {addingFloor ? 'Cancel' : '+ Add Floor'}
+            </button>
+
             {plan && !editingPlanId && (
               <>
                 <button
@@ -399,6 +453,51 @@ export default function FloorBuilder() {
               </p>
             )}
           </div>
+
+          {addingFloor && (
+            <div className="card mb-4 p-4">
+              <h4 className="text-sm font-semibold text-slate-900">Add a new floor</h4>
+              <p className="mt-1 text-xs text-slate-500">
+                Give the new floor a number or name, then choose its floor plan image to create it.
+              </p>
+              <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                <input
+                  value={newFloorForm.floor}
+                  onChange={(e) => setNewFloorForm({ ...newFloorForm, floor: e.target.value })}
+                  placeholder="Floor number (e.g. 2)"
+                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                />
+                <input
+                  value={newFloorForm.name}
+                  onChange={(e) => setNewFloorForm({ ...newFloorForm, name: e.target.value })}
+                  placeholder="Floor name (optional)"
+                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                />
+                <input
+                  value={newFloorForm.building}
+                  onChange={(e) => setNewFloorForm({ ...newFloorForm, building: e.target.value })}
+                  placeholder="Building"
+                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                />
+              </div>
+              <label
+                className={`mt-3 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm hover:bg-slate-50 ${
+                  !newFloorForm.floor.trim() || creatingFloor ? 'pointer-events-none opacity-50' : ''
+                }`}
+              >
+                <Upload size={16} />
+                {creatingFloor ? 'Creating...' : 'Choose floor plan image & create'}
+                <input
+                  ref={newFloorFileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={!newFloorForm.floor.trim() || creatingFloor}
+                  onChange={handleCreateFloor}
+                />
+              </label>
+            </div>
+          )}
 
           <div className="card mb-4 p-4">
             <div className="flex items-center justify-between gap-3">
