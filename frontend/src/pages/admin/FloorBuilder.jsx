@@ -55,6 +55,8 @@ export default function FloorBuilder() {
   const [missingPlanImages, setMissingPlanImages] = useState({});
   const fileInputRef = useRef(null);
   const canvasRef = useRef(null);
+  const dragActiveRef = useRef(false);
+  const justDraggedRef = useRef(false);
 
   useEffect(() => {
     getFloorPlans()
@@ -281,6 +283,10 @@ export default function FloorBuilder() {
   };
 
   const handleCanvasClick = async (e) => {
+    if (justDraggedRef.current) {
+      justDraggedRef.current = false;
+      return;
+    }
     if (!selected || !canvasRef.current) return;
     const rect = canvasRef.current.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -308,6 +314,9 @@ export default function FloorBuilder() {
   };
 
   const handleDragEnd = async (resource) => {
+    if (!dragActiveRef.current) return;
+    dragActiveRef.current = false;
+    justDraggedRef.current = true;
     if (resource.floor_plan_x == null || resource.floor_plan_y == null) return;
     await updateResourcePosition(resource.id, resource.floor_plan_x, resource.floor_plan_y);
     toast.success(`${resource.name} pin updated.`);
@@ -581,12 +590,17 @@ export default function FloorBuilder() {
                           title={`${resource.name} - ${resource.zone}`}
                           onMouseDown={(event) => {
                             event.stopPropagation();
+                            dragActiveRef.current = true;
                             setSelected(resource);
                             setDragging(resource.id);
                           }}
                           onMouseMove={(e) => dragging === resource.id && handleDrag(e, resource)}
                           onMouseUp={() => dragging === resource.id && handleDragEnd(resource)}
                           onMouseLeave={() => dragging === resource.id && handleDragEnd(resource)}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            justDraggedRef.current = false;
+                          }}
                           style={{
                             left: `${resource.floor_plan_x}%`,
                             top: `${resource.floor_plan_y}%`,
